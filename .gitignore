@@ -7,6 +7,9 @@ __pycache__/
 *.vcf
 *.vcf.gz
 
+# Ignore database folder
+database/
+
 # Ignore test data
 genome_*.txt
 genome_*.csv
