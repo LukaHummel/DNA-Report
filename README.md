@@ -6,7 +6,7 @@ A browser-based tool for analyzing 23andMe genetic data against the ClinVar data
 
 - **100% Client-Side Processing**: Your genetic data is processed entirely in your browser
 - **No Data Upload**: Files are read locally and never sent to any server
-- **No Tracking**: No analytics, cookies, or third-party scripts (If using the GitHub page; GitHub safes your IP)
+- **No Tracking**: No analytics, cookies, or third-party scripts (If using the GitHub page; GitHub saves your IP)
 - **Open Source**: Full transparency - review the code yourself
 
 ## ✨ Features
@@ -144,41 +144,9 @@ cd DNA-Report
 
 MIT License - see LICENSE file for details
 
-## 🙏 Acknowledgments
-
-- NCBI ClinVar for providing comprehensive variant-disease associations
-- 23andMe for making raw genetic data accessible
-- The open-source community
-
 ## 🔗 Links
 
 - [Live Demo](https://lukahummel.github.io/DNA-Report)
 - [Report Issues](https://github.com/LukaHummel/DNA-Report/issues)
 - [ClinVar Database](https://www.ncbi.nlm.nih.gov/clinvar/)
- - [23andMe Raw Data](https://customercare.23andme.com/hc/en-us/articles/360004944654-What-s-In-Your-Account-Settings)
-
----
-
-**Made with ❤️ for open science and genetic literacy**
-
-## 🔄 Automated Builds with GitHub Actions (Optional)
-
-Yes — the ClinVar database can be downloaded and indexed automatically via GitHub Actions, so your site always serves a fresh `clinvar_index.json` without committing that large file to the repo.
-
-This repository includes a workflow at `.github/workflows/build_and_deploy.yml` that will:
-
-1. Run on demand, on push to important files, or on a monthly schedule
-2. Download the latest ClinVar VCF (GRCh38) from NCBI
-3. Build the optimized JSON index using `build_clinvar_index.py`
-4. Package `index.html`, `app.js`, `styles.css`, and the generated `clinvar_index.json`
-5. Deploy to GitHub Pages using the official `deploy-pages` action
-
-To enable:
-
-1. In your repository, go to Settings → Pages, set Source to “GitHub Actions”.
-2. Go to Actions tab, select “Build ClinVar index and deploy Pages”, and run it (or wait for the schedule).
-3. Your site will be deployed to `https://<your-username>.github.io/<repo-name>/`.
-
-Notes:
-- The generated `clinvar_index.json` is included only in the deployment artifact, not committed to the repo.
-- If the JSON grows too large for your use case, consider sharding it (e.g., by rsID prefix) and loading shards dynamically in `app.js`.
+- [23andMe Raw Data](https://customercare.23andme.com/hc/en-us/articles/360004944654-What-s-In-Your-Account-Settings)
