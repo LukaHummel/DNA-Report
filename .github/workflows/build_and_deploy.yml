@@ -1,0 +1,68 @@
+name: Build ClinVar index and deploy Pages
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 1 * *' # monthly on the 1st at 06:00 UTC
+  push:
+    paths:
+      - build_clinvar_index.py
+      - index.html
+      - app.js
+      - styles.css
+      - .github/workflows/build_and_deploy.yml
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: Build site with latest ClinVar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download ClinVar VCF (GRCh38)
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p build site
+          curl -L -o build/clinvar.vcf.gz https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar.vcf.gz
+
+      - name: Build ClinVar JSON index
+        shell: bash
+        run: |
+          python build_clinvar_index.py build/clinvar.vcf.gz site/clinvar_index.json
+          # Basic size check (GitHub hard limit ~100MB per file for repo, but artifact is fine)
+          ls -lh site/clinvar_index.json
+
+      - name: Prepare static site
+        shell: bash
+        run: |
+          cp index.html app.js styles.css site/
+          # Optional: add a .nojekyll file to avoid Jekyll processing
+          touch site/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
