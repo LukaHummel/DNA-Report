@@ -103,58 +103,79 @@ class DNAReportApp {
                     const text = e.target.result;
                     const lines = text.split('\n');
                     
-                    // Skip comment lines and find header
+                    // Find header line: handle both "rsid..." and "# rsid..."
                     let headerIndex = -1;
+                    let headerLine = '';
                     for (let i = 0; i < lines.length; i++) {
-                        if (!lines[i].startsWith('#')) {
+                        const raw = lines[i];
+                        if (!raw) continue;
+                        const trimmed = raw.replace(/\r$/, '').trim();
+                        if (!trimmed) continue;
+                        const noHash = trimmed.replace(/^#+\s*/, '');
+                        const lower = noHash.toLowerCase();
+                        if (lower.startsWith('rsid') && (lower.includes('genotype') || lower.includes('chromosome'))) {
                             headerIndex = i;
+                            headerLine = noHash; // header without leading '#'
                             break;
                         }
                     }
                     
                     if (headerIndex === -1) {
-                        throw new Error('No valid data found in file');
+                        throw new Error('No valid header found. Expecting a line starting with "rsid" (possibly prefixed by #).');
                     }
                     
-                    // Detect delimiter
-                    const delimiter = lines[headerIndex].includes('\t') ? '\t' : ',';
-                    const headers = lines[headerIndex].toLowerCase().split(delimiter);
+                    // Detect delimiter: prefer tab, else comma, else whitespace
+                    let delimiter = '\t';
+                    if (headerLine.includes('\t')) {
+                        delimiter = '\t';
+                    } else if (headerLine.includes(',')) {
+                        delimiter = ',';
+                    } else {
+                        delimiter = null; // use regex split on whitespace
+                    }
                     
-                    // Find column indices
-                    const rsidIndex = headers.findIndex(h => h.includes('rsid'));
+                    // Normalize headers: strip quotes, '#', trim and lowercase
+                    const headers = (delimiter ? headerLine.split(delimiter) : headerLine.split(/\s+/))
+                        .map(h => h.replace(/^#+\s*/, '').replace(/^["']|["']$/g, '').trim().toLowerCase());
+                    
+                    // Find column indices (support '# rsid' already normalized)
+                    const rsidIndex = headers.findIndex(h => h === 'rsid' || h.endsWith('rsid'));
                     const genotypeIndex = headers.findIndex(h => h.includes('genotype'));
                     const chromosomeIndex = headers.findIndex(h => h.includes('chromosome'));
                     const positionIndex = headers.findIndex(h => h.includes('position'));
                     
                     if (rsidIndex === -1 || genotypeIndex === -1) {
-                        throw new Error('Invalid file format: missing required columns');
+                        throw new Error('Invalid file format: missing required columns (rsid, genotype). Make sure you uploaded the unzipped 23andMe raw data file.');
                     }
                     
                     // Parse data rows
                     let validCount = 0;
                     for (let i = headerIndex + 1; i < lines.length; i++) {
-                        const line = lines[i].trim();
+                        let line = lines[i];
                         if (!line) continue;
+                        line = line.replace(/\r$/, '').trim();
+                        if (!line) continue;
+                        if (line.startsWith('#')) continue; // skip comment lines after header if any
                         
-                        const cols = line.split(delimiter);
-                        const rsid = cols[rsidIndex]?.trim().toLowerCase();
-                        const genotype = cols[genotypeIndex]?.trim();
+                        const cols = (delimiter ? line.split(delimiter) : line.split(/\s+/));
+                        const rsidRaw = cols[rsidIndex] ?? '';
+                        const genotypeRaw = cols[genotypeIndex] ?? '';
+                        const rsid = rsidRaw.trim().toLowerCase();
+                        const genotype = genotypeRaw.trim();
                         
                         if (rsid && genotype && (rsid.startsWith('rs') || rsid.startsWith('i'))) {
                             // Skip no-calls
                             if (!['--', 'II', 'DD', 'NN'].includes(genotype)) {
-                                this.userGenotypes.set(rsid, {
-                                    genotype: genotype,
-                                    chromosome: cols[chromosomeIndex]?.trim() || '',
-                                    position: cols[positionIndex]?.trim() || ''
-                                });
+                                const chromosome = (chromosomeIndex !== -1 ? (cols[chromosomeIndex] || '').trim() : '');
+                                const position = (positionIndex !== -1 ? (cols[positionIndex] || '').trim() : '');
+                                this.userGenotypes.set(rsid, { genotype, chromosome, position });
                                 validCount++;
                             }
                         }
                         
                         // Update progress periodically
-                        if (i % 10000 === 0) {
-                            const progress = 40 + Math.floor((i / lines.length) * 20);
+                        if ((i - headerIndex) % 10000 === 0) {
+                            const progress = 40 + Math.floor(((i - headerIndex) / Math.max(1, (lines.length - headerIndex))) * 20);
                             this.updateProgress(progress, `Parsing... ${validCount.toLocaleString()} SNPs loaded`);
                         }
                     }
