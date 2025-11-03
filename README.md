@@ -1,155 +1,164 @@
-# SNPedia Disease Report Generator - User Guide
+# DNA Report - Privacy-First Genomic Analysis
 
-## Quick Start
+A browser-based tool for analyzing 23andMe genetic data against the ClinVar database to identify disease-associated variants. **All processing happens locally in your browser** - your genetic data never leaves your device.
 
-### Installation Requirements
+## 🔒 Privacy First
+
+- **100% Client-Side Processing**: Your genetic data is processed entirely in your browser
+- **No Data Upload**: Files are read locally and never sent to any server
+- **No Tracking**: No analytics, cookies, or third-party scripts
+- **Open Source**: Full transparency - review the code yourself
+
+## ✨ Features
+
+- 🧬 Analyze 23andMe raw data files
+- 🔍 Match against ClinVar pathogenic/likely pathogenic variants
+- 📊 Beautiful, comprehensive HTML reports
+- 🖨️ Print and download your results
+- 📱 Responsive design for mobile and desktop
+
+## 🚀 Quick Start
+
+### Option 1: Use GitHub Pages (Recommended)
+
+Visit: **[https://lukahummel.github.io/DNA-Report](https://lukahummel.github.io/DNA-Report)**
+
+1. Click "Select your 23andMe file"
+2. Upload your raw genetic data file
+3. Wait for analysis to complete
+4. Review your personalized report
+
+### Option 2: Run Locally
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/LukaHummel/DNA-Report.git
+   cd DNA-Report
+   ```
+
+2. Generate the ClinVar index (one-time setup):
+   ```bash
+   # Download ClinVar VCF (if you don't have it)
+   # Then run:
+   python build_clinvar_index.py clinvar.vcf clinvar_index.json
+   ```
+
+3. Serve locally:
+   ```bash
+   # Using Python
+   python -m http.server 8000
+   
+   # Or using Node.js
+   npx http-server
+   ```
+
+4. Open `http://localhost:8000` in your browser
+
+## 📋 Requirements
+
+### For Users (Browser-Based):
+- Modern web browser (Chrome, Firefox, Safari, Edge)
+- Your 23andMe raw data file
+
+### For Developers (Building ClinVar Index):
+- Python 3.7+
+- ClinVar VCF file (download from [NCBI](https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/))
+
+## 🏗️ How It Works
+
+1. **Pre-processing** (one-time): The large ClinVar VCF file is converted to an optimized JSON index containing only pathogenic/likely pathogenic variants with rsIDs
+2. **Upload**: User uploads their 23andMe file (never sent anywhere)
+3. **Parse**: JavaScript parses the genetic data in-browser
+4. **Match**: Variants are matched against the ClinVar index
+5. **Report**: Results are displayed in a comprehensive, printable report
+
+## 📁 File Structure
+
+```
+DNA-Report/
+├── index.html              # Main application interface
+├── app.js                  # Core JavaScript logic
+├── styles.css              # Styling and responsive design
+├── build_clinvar_index.py  # Python script to build ClinVar index
+├── clinvar_index.json      # Pre-built ClinVar database (generated)
+└── README.md               # This file
+```
+
+## ⚠️ Medical Disclaimer
+
+**This tool is for educational and informational purposes only.**
+
+This is NOT medical advice and should NOT be used for:
+- Self-diagnosis
+- Treatment decisions
+- Clinical decision-making
+
+Many genetic variants have:
+- Incomplete penetrance (may never cause disease)
+- Variable expressivity (different severity in different people)
+- Environmental dependencies (require other factors to manifest)
+
+**Always consult with a qualified healthcare provider, genetic counselor, or medical geneticist** to properly interpret any genetic findings.
+
+## 🔧 Building the ClinVar Index
+
+The ClinVar VCF file is too large for browsers (~1-2GB). We convert it to an optimized JSON index:
+
 ```bash
-pip install -r requirements.txt
+# Download latest ClinVar VCF
+wget https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/clinvar.vcf.gz
+gunzip clinvar.vcf.gz
+
+# Build index (takes a few minutes)
+python build_clinvar_index.py clinvar.vcf clinvar_index.json
 ```
 
-Or just Python 3.7+ with standard library (no external dependencies needed).
+The resulting JSON file is much smaller (~10-50MB) and contains only:
+- Pathogenic and likely pathogenic variants
+- Variants with rsIDs (matching 23andMe format)
+- Essential clinical information
 
-### Running the Script
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+### Development
 
 ```bash
-python snp_disease_report.py <snpedia.db> <23andme_raw_data.txt> [output.html]
+# Clone and setup
+git clone https://github.com/LukaHummel/DNA-Report.git
+cd DNA-Report
+
+# Make changes to HTML/CSS/JS
+# Test locally with a web server
+
+# Submit PR
 ```
 
-**Example:**
-```bash
-python snp_disease_report.py snpedia.db genome_results.txt my_report.html
-```
+## 📊 Data Sources
 
-### Input Files
+- **ClinVar**: NCBI's public archive of genetic variants and their clinical significance
+- **SNPedia**: Community-curated wiki for SNP information (linked in reports)
 
-#### 1. SNPedia Database (.db file)
-- SQLite database with table structure: `rsid | content | scraped_at | attribution`
-- Content field contains wiki-markup with:
-  - `{{Rsnum}}` section: Basic SNP information
-  - `{{ClinVar}}` section: Clinical significance data
+## 📝 License
 
-#### 2. 23andMe Raw Data (.txt file)
-- Tab or comma-separated format
-- Required columns: `rsid`, `genotype`, `chromosome`, `position`
-- Example:
-  ```
-  # rsid  chromosome  position  genotype
-  rs4988235  2  136608646  AA
-  rs797044442  16  47502989  AG
-  ```
+MIT License - see LICENSE file for details
 
-### Output
+## 🙏 Acknowledgments
 
-Generates an HTML report (`genomics_disease_report.html` by default) with:
+- NCBI ClinVar for providing comprehensive variant-disease associations
+- 23andMe for making raw genetic data accessible
+- The open-source community
 
-- **Summary Statistics**: Count of pathogenic and likely pathogenic variants
-- **Pathogenic Variants Section**: Disease-causing variants (CLNSIG = 5)
-- **Likely Pathogenic Section**: Probably disease-causing variants (CLNSIG = 4)
-- **For Each Finding**:
-  - SNP ID (rsid)
-  - Your genotype
-  - Reference/Alternative alleles
-  - Chromosomal position
-  - Associated disease/condition
-  - Links to SNPedia and ClinVar for detailed information
+## 🔗 Links
 
-## Clinical Significance Levels (CLNSIG)
+- [Live Demo](https://lukahummel.github.io/DNA-Report)
+- [Report Issues](https://github.com/LukaHummel/DNA-Report/issues)
+- [ClinVar Database](https://www.ncbi.nlm.nih.gov/clinvar/)
+- [23andMe Raw Data](https://www.23andme.com/en-int/account/raw-data/)
 
-The script filters for pathogenic findings using ClinVar classifications:
+---
 
-- **5 = Pathogenic**: Strong evidence for disease causation
-- **4 = Likely Pathogenic**: Probable disease causation
-- **3 = Likely Benign**: Probably not disease-causing (filtered out)
-- **2 = Benign**: Not associated with disease (filtered out)
-- **0 = Uncertain Significance**: Unknown effect (filtered out)
-- **1 = Not Provided**: Insufficient data (filtered out)
+**Made with ❤️ for open science and genetic literacy**
 
-## Understanding the Report
-
-### Pathogenic Variants (Red 🔴)
-These variants have strong evidence of causing disease. If you carry these:
-- Consider contacting a genetic counselor
-- May warrant medical screening
-- Family members may be affected
-
-### Likely Pathogenic Variants (Orange 🟠)
-These variants probably cause disease, but evidence is less definitive. Same recommendations as above apply.
-
-## Important Notes
-
-### Medical Disclaimer
-**This report is for educational purposes only and is NOT medical advice.** 
-
-- Not all carriers of pathogenic variants will develop disease (incomplete penetrance)
-- Environmental and other genetic factors may be required
-- Many variants have age-dependent or variable expression
-- Consult a healthcare provider before making any decisions
-
-### Limitations
-
-1. **Database Coverage**: Only shows variants in your SNPedia database
-2. **Population Bias**: Most genomic databases overrepresent European ancestry
-3. **Incomplete Data**: Not all disease variants are yet characterized
-4. **Strand Orientation**: May miss variants reported on opposite DNA strand
-5. **Genotype Matching**: Requires exact match between your data and database
-
-### What's Not Included
-
-- Carrier status for recessive conditions
-- Pharmacogenomics (drug response)
-- Ancestry and population markers
-- Complex disease susceptibility (requires multiple variants)
-- Risk scores
-- Polygenic predictions
-
-## Troubleshooting
-
-### No matches found
-1. Verify SNPedia database contains your rsids
-2. Check 23andMe file is properly formatted
-3. Ensure rsid format: `rs` followed by numbers (e.g., `rs4988235`)
-
-### Few matches compared to expected
-1. Your SNPedia database might be incomplete
-2. Many variants may have "uncertain significance" (filtered out)
-3. Most variants are not disease-causing
-
-### Database Connection Error
-1. Verify `.db` file path is correct
-2. Confirm file is a valid SQLite database: `sqlite3 snpedia.db ".tables"`
-
-## Advanced Usage
-
-### Checking Database Structure
-```bash
-sqlite3 snpedia.db ".schema"
-```
-
-### Exporting specific SNPs
-Modify the script to include specific gene filtering:
-```python
-# In query_snpedia method, add gene filter:
-if finding['gene'] in ['BRCA1', 'BRCA2', 'TP53']:
-    self.findings.append(finding)
-```
-
-### Filtering by disease category
-Add custom disease filtering to focus on specific conditions:
-```python
-disease_keywords = ['cancer', 'cardiovascular', 'metabolic']
-for keyword in disease_keywords:
-    if keyword.lower() in disease.lower():
-        self.findings.append(finding)
-```
-
-## Data Files Provided
-
-- `snp_disease_report.py`: Main script to generate reports
-- This guide file
-
-## Support
-
-For issues with:
-- **SNPedia database**: https://www.snpedia.com
-- **ClinVar data**: https://www.ncbi.nlm.nih.gov/clinvar/
-- **23andMe format**: Contact 23andMe support or check their documentation
+*Remember: Knowing your genetics is just the beginning. Understanding them requires expertise. Always consult healthcare professionals.*
