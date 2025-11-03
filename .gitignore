@@ -6,7 +6,6 @@ __pycache__/
 # Ignore large data files
 *.vcf
 *.vcf.gz
-clinvar_index.json
 
 # Ignore test data
 genome_*.txt

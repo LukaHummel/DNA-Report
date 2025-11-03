@@ -62,7 +62,7 @@ Visit: **[https://lukahummel.github.io/DNA-Report](https://lukahummel.github.io/
 
 ### For Developers (Building ClinVar Index):
 - Python 3.7+
-- ClinVar VCF file (download from [NCBI](https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/))
+- ClinVar VCF file (download from [NCBI](https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/))
 
 ## 🏗️ How It Works
 
@@ -106,7 +106,7 @@ The ClinVar VCF file is too large for browsers (~1-2GB). We convert it to an opt
 
 ```bash
 # Download latest ClinVar VCF
-wget https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/clinvar.vcf.gz
+wget https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar.vcf.gz
 gunzip clinvar.vcf.gz
 
 # Build index (takes a few minutes)
@@ -155,10 +155,8 @@ MIT License - see LICENSE file for details
 - [Live Demo](https://lukahummel.github.io/DNA-Report)
 - [Report Issues](https://github.com/LukaHummel/DNA-Report/issues)
 - [ClinVar Database](https://www.ncbi.nlm.nih.gov/clinvar/)
-- [23andMe Raw Data](https://www.23andme.com/en-int/account/raw-data/)
+- [23andMe Raw Data](https://customercare.23andme.com/hc/en-us/articles/360004944654-What-s-In-Your-Account-Settings)
 
 ---
 
 **Made with ❤️ for open science and genetic literacy**
-
-*Remember: Knowing your genetics is just the beginning. Understanding them requires expertise. Always consult healthcare professionals.*
