@@ -6,7 +6,7 @@ A browser-based tool for analyzing 23andMe genetic data against the ClinVar data
 
 - **100% Client-Side Processing**: Your genetic data is processed entirely in your browser
 - **No Data Upload**: Files are read locally and never sent to any server
-- **No Tracking**: No analytics, cookies, or third-party scripts
+- **No Tracking**: No analytics, cookies, or third-party scripts (If using the GitHub page; GitHub safes your IP)
 - **Open Source**: Full transparency - review the code yourself
 
 ## ✨ Features
@@ -168,7 +168,7 @@ Yes — the ClinVar database can be downloaded and indexed automatically via Git
 This repository includes a workflow at `.github/workflows/build_and_deploy.yml` that will:
 
 1. Run on demand, on push to important files, or on a monthly schedule
-2. Download the latest ClinVar VCF (GRCh37) from NCBI
+2. Download the latest ClinVar VCF (GRCh38) from NCBI
 3. Build the optimized JSON index using `build_clinvar_index.py`
 4. Package `index.html`, `app.js`, `styles.css`, and the generated `clinvar_index.json`
 5. Deploy to GitHub Pages using the official `deploy-pages` action
@@ -181,5 +181,4 @@ To enable:
 
 Notes:
 - The generated `clinvar_index.json` is included only in the deployment artifact, not committed to the repo.
-- If you prefer GRCh38, update the download URL in the workflow to `vcf_GRCh38/clinvar.vcf.gz`.
 - If the JSON grows too large for your use case, consider sharding it (e.g., by rsID prefix) and loading shards dynamically in `app.js`.
